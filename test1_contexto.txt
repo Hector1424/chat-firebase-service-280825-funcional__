@@ -1,0 +1,33 @@
+###proyecto para probar:
+
+demo3
+UUID: eacccf60-8bbc-4e99-88aa-41c67e24d7e7
+API Key: JEj92zH753UENZVjBvbvyoZQ6wvaGEL28bogcAR32G4C1jyQ
+Creado: 2025-08-28T00:48:31.718818+00:00
+Actualizado: 2025-08-28T00:48:31.718822+00:00
+
+
+
+ejemplo de usuarios externos:
+uuid     name
+usr0001  Juan
+usr0002  Pablo
+usr0003  Andres
+usr0004  Nolan
+usr0005  Kimo
+
+
+
+###chats montados:
+
+DIRECT Chat
+Proyecto: demo3 (eacccf60-8bbc-4e99-88aa-41c67e24d7e7)
+Chat ID: 8h6bbQjOsVovuQ8QgaJh
+Usuarios: usr0001, usr0002
+Creado: 2025-08-28T00:58:46.457005+00:00
+
+DIRECT Chat
+Proyecto: demo3 (eacccf60-8bbc-4e99-88aa-41c67e24d7e7)
+Chat ID: s5mk73Bzr6kyjoBNES5z
+Usuarios: usr0001, usr0003
+Creado: 2025-08-28T01:00:05.326248+00:00
