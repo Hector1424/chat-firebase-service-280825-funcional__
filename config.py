@@ -27,3 +27,11 @@ FIREBASE_CREDENTIALS = {
 COLL_PROJECTS = "projects"
 COLL_CHATS = "chats"
 SUBCOLL_MESSAGES = "messages"
+
+
+# Nueva colección para los tokens de notificaciones
+COLL_FCM_TOKENS = "fcm_tokens"
+
+
+# Agrega esta línea para cargar el messagingSenderId desde el .env
+FIREBASE_MESSAGING_SENDER_ID = os.getenv("FIREBASE_MESSAGING_SENDER_ID")

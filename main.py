@@ -10,8 +10,13 @@ from services import (
     list_chats, get_chat, add_message, list_messages
 )
 from google.cloud.firestore_v1._helpers import DatetimeWithNanoseconds
+from datetime import datetime, timezone
 
 
+
+class FCMToken(BaseModel):
+    user_id: str
+    fcm_token: str
 
 app = FastAPI(title="Chat API mínima")
 
@@ -760,3 +765,22 @@ def mensajes_page():
 </html>
 """
     return HTMLResponse(content=html)
+
+
+
+
+
+
+
+
+from services import save_fcm_token_to_db
+
+@app.post("/save-fcm-token")
+async def save_fcm_token(fcm_token: FCMToken):
+    # Aquí ya no necesitas acceder a 'db' directamente
+    print(f"Token FCM recibido para el usuario {fcm_token.user_id}: {fcm_token.fcm_token}")
+
+    if not save_fcm_token_to_db(fcm_token.user_id, fcm_token.fcm_token):
+        raise HTTPException(status_code=500, detail="No se pudo guardar el token en la base de datos.")
+
+    return {"message": "Token FCM guardado con éxito."}
