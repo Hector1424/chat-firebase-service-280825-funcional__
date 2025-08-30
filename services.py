@@ -5,6 +5,10 @@ from uuid import uuid4
 import secrets
 from firebase_config import db
 from config import COLL_PROJECTS, COLL_CHATS, SUBCOLL_MESSAGES
+from config import COLL_FCM_TOKENS
+
+from firebase_admin import messaging
+
 
 # Helpers
 def now_utc():
@@ -128,6 +132,18 @@ def add_message(chat_id: str, sender_id: str, text: str):
     }
     ref = db.collection(COLL_CHATS).document(chat_id).collection(SUBCOLL_MESSAGES).add(msg)[1]
     msg["id"] = ref.id
+
+###################### logica notificaciones inicio
+
+    # Get the project_id to pass to the notification function
+    chat_doc = db.collection(COLL_CHATS).document(chat_id).get()
+    project_id = chat_doc.to_dict().get("project_id", "N/A")
+
+    # Call the new notification function after the message is saved
+    send_push_notification(sender_id, chat_id, project_id)
+
+###################### logica notificaciones fin
+
     return msg
 
 def list_messages(chat_id: str):
@@ -138,3 +154,75 @@ def list_messages(chat_id: str):
         item["id"] = d.id
         out.append(item)
     return out
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# A new function to handle sending the notifications
+def send_push_notification(sender_id: str, chat_id: str, project_id: str):
+    try:
+        chat_doc = db.collection(COLL_CHATS).document(chat_id).get()
+        if not chat_doc.exists:
+            print(f"Error: Chat with ID {chat_id} not found.")
+            return
+
+        chat_data = chat_doc.to_dict()
+        chat_members = chat_data.get("users", [])
+
+        fcm_tokens = []
+        for user_id in chat_members:
+            if user_id != sender_id:
+                token_doc = db.collection(COLL_FCM_TOKENS).document(user_id).get()
+                if token_doc.exists:
+                    fcm_tokens.append(token_doc.to_dict()["token"])
+
+        if not fcm_tokens:
+            print("No tokens found to send notifications.")
+            return
+
+        message = messaging.MulticastMessage(
+            tokens=fcm_tokens,
+            notification=messaging.Notification(
+                title=f"New message in {chat_data.get('title', 'your chat')}",
+                body="You've received a new message.",
+            ),
+            data={"chat_id": chat_id, "project_id": project_id},
+        )
+        response = messaging.send_each_for_multicast(message)
+        print(f"Notifications sent successfully: {response.success_count}")
+
+    except Exception as e:
+        print(f"An error occurred while sending notifications: {e}")
+
+
+
+
+
+
+def save_fcm_token_to_db(user_uuid: str, token: str):
+    """
+    Guarda el token de notificaciones push de un usuario en la base de datos.
+    """
+    try:
+        db.collection("fcm_tokens").document(user_uuid).set({
+            "token": token,
+            "timestamp": now_utc()
+        })
+        print(f"Token FCM guardado con éxito para el usuario {user_uuid}.")
+        return True
+    except Exception as e:
+        print(f"Error al guardar el token FCM para el usuario {user_uuid}: {e}")
+        return False
